@@ -147,7 +147,7 @@ class VideoConverterApp:
 		]
 		
 		try:
-			proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=10)
+			proc = subprocess.run(cmd, creationflags=subprocess.CREATE_NO_WINDOW, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=10)
 			if proc.returncode == 0 and proc.stdout:
 				image_data = proc.stdout
 				image = Image.open(io.BytesIO(image_data))
@@ -192,7 +192,7 @@ class VideoConverterApp:
 		print("Exporting video with command:")
 		print(" ".join(cmd))
 		try:
-			subprocess.run(cmd, check=True)
+			subprocess.run(cmd, check=True, creationflags=subprocess.CREATE_NO_WINDOW)
 			print("Export complete!")
 		except subprocess.CalledProcessError as e:
 			print("Error during export:", e)
