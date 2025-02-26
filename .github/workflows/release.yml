@@ -1,5 +1,8 @@
 name: Build and Draft Release Executable
 
+permissions:
+  contents: write
+
 on:
   workflow_dispatch:
     inputs:
@@ -32,36 +35,40 @@ jobs:
 
       - name: Build Executable (Windows)
         if: matrix.os == 'windows-latest'
-        run: pyinstaller --onefile main.py --name myapp.exe
+        run: pyinstaller --onefile --windowed --name fisheye-converter-win.exe main.py
 
       - name: Build Executable (Mac)
         if: matrix.os == 'macos-latest'
-        run: pyinstaller --onefile main.py --name myapp-mac
+        run: pyinstaller --onefile --windowed --name "Fisheye Converter.app" main.py
+
+      - name: Zip macOS App Bundle
+        if: matrix.os == 'macos-latest'
+        run: zip -r dist/fisheye-converter-mac.zip "dist/Fisheye Converter.app"
 
       - name: Build Executable (Linux)
         if: matrix.os == 'ubuntu-latest'
-        run: pyinstaller --onefile main.py --name myapp-linux
+        run: pyinstaller --onefile --windowed --name fisheye-converter-linux main.py
 
       - name: Upload Windows Artifact
         if: matrix.os == 'windows-latest'
         uses: actions/upload-artifact@v4
         with:
-          name: myapp-windows
-          path: dist/myapp.exe
+          name: fisheye-converter-windows
+          path: dist/fisheye-converter-win.exe
 
       - name: Upload Mac Artifact
         if: matrix.os == 'macos-latest'
         uses: actions/upload-artifact@v4
         with:
-          name: myapp-mac
-          path: dist/myapp-mac
+          name: fisheye-converter-mac
+          path: dist/fisheye-converter-mac.zip
 
       - name: Upload Linux Artifact
         if: matrix.os == 'ubuntu-latest'
         uses: actions/upload-artifact@v4
         with:
-          name: myapp-linux
-          path: dist/myapp-linux
+          name: fisheye-converter-linux
+          path: dist/fisheye-converter-linux
 
   release:
     needs: build
@@ -71,19 +78,19 @@ jobs:
       - name: Download Windows Artifact
         uses: actions/download-artifact@v4
         with:
-          name: myapp-windows
+          name: fisheye-converter-windows
           path: dist/
 
       - name: Download Mac Artifact
         uses: actions/download-artifact@v4
         with:
-          name: myapp-mac
+          name: fisheye-converter-mac
           path: dist/
 
       - name: Download Linux Artifact
         uses: actions/download-artifact@v4
         with:
-          name: myapp-linux
+          name: fisheye-converter-linux
           path: dist/
 
       - name: Create Draft GitHub Release
